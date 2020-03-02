@@ -1,14 +1,20 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const Produto = require('./ProdutoSchema');
 
 const server = express();
 
-var produtos = [
-    {id: 1, nome: 'Computador', preco: 1200},
-    {id: 2, nome: 'Notebook', preco: 1000},
-    {id: 3, nome: 'TV', preco: 300.90}
-];
+const MONGO_URL = "mongodb+srv://root:1234@clusterlp3-s6xmr.mongodb.net/dbproduto?retryWrites=true&w=majority";
 
-server.get('/produto', function(request, response) {
+const db = mongoose.connect(MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+var produtos = [];
+
+server.get('/produto', async function(request, response) {
+    const produtos = await Produto.find();
     return response.json(produtos);
 });
 
@@ -27,9 +33,7 @@ server.get('/produto/:id', function(request, response) {
 
 server.post('/produto', function(request, response){
     const produto = request.body;
-    produtos.push(produto);
-
-    var nome = request.body.nome;
+    Produto.create(produto);
 
     return response.status(201).send();
 });
