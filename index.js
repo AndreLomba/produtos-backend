@@ -10,6 +10,7 @@ const Produto = require('./ProdutoSchema');
 const server = express();
 
 const MONGO_URL = "mongodb+srv://root:1234@clusterlp3-s6xmr.mongodb.net/dbproduto?retryWrites=true&w=majority";
+<<<<<<< HEAD
 
 const db = mongoose.connect(MONGO_URL, {
     useNewUrlParser: true,
@@ -20,6 +21,16 @@ const db = mongoose.connect(MONGO_URL, {
 var produtos = [];
 
 // EXIBE O RESULT DO QUE EXISTE EM PRODUTO, FIND É EQUIVALENTE AO "SELECT"
+=======
+
+const db = mongoose.connect(MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+var produtos = [];
+
+>>>>>>> a3642eca0c15ee71ab739ca2dc178b76f9cfbc38
 server.get('/produto', async function(request, response) {
     const produtos = await Produto.find();
     return response.json(produtos);
@@ -39,8 +50,12 @@ server.get('/produto/:id', async function(request, response) {
 
 server.post('/produto', async function(request, response){
     const produto = request.body;
+<<<<<<< HEAD
 
     await Produto.create(produto);
+=======
+    Produto.create(produto);
+>>>>>>> a3642eca0c15ee71ab739ca2dc178b76f9cfbc38
 
     return response.json(produto);
 });
