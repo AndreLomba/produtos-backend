@@ -1,3 +1,8 @@
+// GET - FIND - SELECT
+// POST - CREATE - INTERT
+// PUT - FIND AND UPDATE - UPDATE
+// DELETE - FIND AND DELETE - DELETE
+
 const express = require('express');
 const mongoose = require('mongoose');
 const Produto = require('./ProdutoSchema');
@@ -8,11 +13,13 @@ const MONGO_URL = "mongodb+srv://root:1234@clusterlp3-s6xmr.mongodb.net/dbprodut
 
 const db = mongoose.connect(MONGO_URL, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 });
 
 var produtos = [];
 
+// EXIBE O RESULT DO QUE EXISTE EM PRODUTO, FIND É EQUIVALENTE AO "SELECT"
 server.get('/produto', async function(request, response) {
     const produtos = await Produto.find();
     return response.json(produtos);
@@ -22,51 +29,47 @@ server.get('/produto', async function(request, response) {
 server.use(express.json());
 
 // RECEBE O ID DO PRODUTO COMO PARAMETRO, FILTRA O ID E RETORNA
-server.get('/produto/:id', function(request, response) {
+server.get('/produto/:id', async function(request, response) {
 
     const id = request.params.id;
-
-    const produto = produtos.filter(p => p.id == id);
+    const produto = await Produto.findById(id);
 
     return response.json(produto);
 });
 
-server.post('/produto', function(request, response){
+server.post('/produto', async function(request, response){
     const produto = request.body;
-    Produto.create(produto);
 
-    return response.status(201).send();
+    await Produto.create(produto);
+
+    return response.json(produto);
 });
 
-server.delete('/produto/:id', function(request, response){
+server.delete('/produto/:id', async function(request, response){
     const id = request.params.id;
+    const produto = await Produto.findByIdAndDelete(id);
 
-    const produto = produtos.filter(p => p.id != id);
 
-    for (var i = 0; i < produtos.length; i++) {
-        if(produtos[i].id == id){
-            var nome = produtos[i].nome;
-            produtos.splice(i,1);
 
-        }
-    }
-
-    return response.json('Apagou o produto '+ nome);
+    return response.json('Apagou o produto com id: ' + id );
 });
 
-server.put('/produto/:id', (req, res) => {
+server.put('/produto/:id', async (req, res) => {
     var id = req.params.id;
     
-    const produto = req.body;
+    const dados = req.body;
 
-    produtos.forEach(p => {
-        if(p.id == id){
-            p.nome = produto.nome;
-            p.preco = produto.preco;
-        }
-    })
+    await Produto.findByIdAndUpdate(id, dados)
 
     return res.send();
+
+    // produtos.forEach(p => {
+    //     if(p.id == id){
+    //         p.nome = produto.nome;
+    //         p.preco = produto.preco;
+    //     }
+    // })
+
 });
 
 server.listen(3000);
